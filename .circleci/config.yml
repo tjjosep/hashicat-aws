@@ -63,7 +63,7 @@ workflows:
   version: 2
   infrastructure-tests:
     jobs:
-      - terraform-validate
+      - terraform-validate:
           context: default
       - terraform-plan:
           context: default        
