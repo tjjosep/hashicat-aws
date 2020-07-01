@@ -1,77 +1,13 @@
-version: 2
-jobs:
-  terraform-validate:
-    docker:
-      - image: hashicorp/terraform:light
-    steps:
-      - checkout
-      - run:
-          name: Terraform Validate
-          command: |
-            terraform init
-            terraform validate
-  terraform-plan:
-    docker:
-      - image: hashicorp/terraform:light
-    steps:
-      - checkout
-      - run:
-          name: Terraform Validate
-          command: |
-            terraform init
-            terraform plan
-  terraform-apply:
-    docker:
-      - image: hashicorp/terraform:light
-    steps:
-      - checkout
-      - run:
-          name: Terraform Apply
-          command: |
-            terraform init
-            terraform apply -auto-approve
-      - persist_to_workspace:
-          root: /root
-          paths:
-            - project
-  run-inspec-tests:
-    docker:
-      - image: chef/inspec:latest
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Inspec Tests
-          command: |
-            inspec --version
-      - persist_to_workspace:
-          root: /root
-          paths:
-            - project
-  terraform-destroy:
-    docker:
-      - image: hashicorp/terraform:light
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Terraform Destroy
-          command: |
-            terraform destroy -auto-approve
+# Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+# Use a package of configuration called an orb.
+orbs:
+  # Declare a dependency on the welcome-orb
+  welcome: circleci/welcome-orb@0.4.1
+# Orchestrate or schedule a set of jobs
 workflows:
-  version: 2
-  infrastructure-tests:
+  # Name the workflow "welcome"
+  welcome:
+    # Run the welcome/run job in its own container
     jobs:
-      - terraform-validate
-      - terraform-plan:
-          requires:
-            - terraform-validate
-      - terraform-apply:
-          requires:
-            - terraform-plan
-      - run-inspec-tests:
-          requires:
-            - terraform-apply
-      - terraform-destroy:
-          requires:
-            - run-inspec-tests
+      - welcome/run
