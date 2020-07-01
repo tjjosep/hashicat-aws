@@ -8,7 +8,7 @@ jobs:
       - run:
           name: Terraform Validate
           command: |
-            terraform init
+            terraform init -backend-config="token=$TFE_TOKEN"
             terraform validate
   terraform-plan:
     docker:
