@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Terraform Validate
           command: |
-            terraform init
+            terraform init -backend-config="TFE_TOKEN=$TFE_TOKEN"
             terraform plan
   terraform-apply:
     docker:
@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Terraform Apply
           command: |
-            terraform init
+            terraform init -backend-config="TFE_TOKEN=$TFE_TOKEN"
             terraform apply -auto-approve
       - persist_to_workspace:
           root: /root
@@ -57,21 +57,27 @@ jobs:
       - run:
           name: Terraform Destroy
           command: |
+            terraform init -backend-config="TFE_TOKEN=$TFE_TOKEN"
             terraform destroy -auto-approve
 workflows:
   version: 2
   infrastructure-tests:
     jobs:
       - terraform-validate
+          context: default
       - terraform-plan:
+          context: default        
           requires:
             - terraform-validate
       - terraform-apply:
+          context: default        
           requires:
             - terraform-plan
       - run-inspec-tests:
+          context: default
           requires:
             - terraform-apply
       - terraform-destroy:
+          context: default        
           requires:
             - run-inspec-tests
